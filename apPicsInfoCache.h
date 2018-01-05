@@ -24,11 +24,14 @@ SOFTWARE.
 #ifndef APPICSINFOCACHE_H
 #define APPICSINFOCACHE_H
 
+#include <QString>
 
 class apPicsInfoCache
 {
 public:
 	apPicsInfoCache();
+
+	QStringList filesFromFileHash( const QString& ) const;
 };
 
 #endif // APPICSINFOCACHE_H

@@ -23,7 +23,58 @@ SOFTWARE.
 */
 #include "apPicsInfoCache.h"
 
+#include <QDir>
+#include <QMessageBox>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QVariant>
+
 apPicsInfoCache::apPicsInfoCache()
 {
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 
+	QString dbFile = QDir::homePath() + "/.apSortPics/infos.db";
+
+	QDir(QDir::homePath()).mkpath(dbFile);
+	db.setDatabaseName(dbFile);
+
+	if (!db.open()) {
+		QMessageBox::critical(nullptr, QObject::tr("Cannot open database"),
+			QObject::tr("Unable to establish a database connection.\n"
+						"This example needs SQLite support. Please read "
+						"the Qt SQL driver documentation for information how "
+						"to build it.\n\n"
+						"Click Cancel to exit."), QMessageBox::Cancel);
+		return false;
+	}
+
+	if ( ! db.tables().contains("fileHashes"))
+	{
+		QSqlQuery query;
+		query.exec("create table fileHashes (md5 varchar(32), "
+					   "fileName TEXT)");
+	}
+	if ( ! db.tables().contains("picHashes"))
+	{
+		QSqlQuery query;
+		query.exec("create table picHashes (md5 varchar(32), "
+					   "fileName TEXT)");
+	}
+}
+
+QStringList apPicsInfoCache::filesFromFileHash(const QString& hash) const
+{
+	QSqlQuery query;
+	query.exec("SELECT fileName FROM fileHashes WHERE hash='" + hash + "'");
+
+	QStringList fileNames;
+
+	while (query.next())
+	{
+		QString fileName = query.value(0).toString();
+
+		fileNames << fileName;
+	}
+
+	return fileNames;
 }
