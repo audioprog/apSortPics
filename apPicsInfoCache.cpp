@@ -27,6 +27,7 @@ SOFTWARE.
 #include <QMessageBox>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QStringBuilder>
 #include <QVariant>
 
 apPicsInfoCache::apPicsInfoCache()
@@ -45,7 +46,7 @@ apPicsInfoCache::apPicsInfoCache()
 						"the Qt SQL driver documentation for information how "
 						"to build it.\n\n"
 						"Click Cancel to exit."), QMessageBox::Cancel);
-		return false;
+		return;
 	}
 
 	if ( ! db.tables().contains("fileHashes"))
@@ -62,10 +63,68 @@ apPicsInfoCache::apPicsInfoCache()
 	}
 }
 
+void apPicsInfoCache::addFile(const QString& file, const QString& fileMd5, const QString& picMd5)
+{
+	if (this->fileHashFromFile(file) != fileMd5)
+	{
+		QSqlQuery query;
+
+		query.exec(QLatin1String("INSERT INTO fileHashes (md5, fileName) VALUES ('") % fileMd5 % "','" % file % "')");
+	}
+	if (this->picHashFromFile(file) != picMd5)
+	{
+		QSqlQuery query;
+
+		query.exec(QLatin1String("INSERT INTO picHashes (md5, fileName) VALUES ('") % picMd5 % "','" % file % "')");
+	}
+}
+
+QString apPicsInfoCache::fileHashFromFile(const QString& fileName) const
+{
+	return this->hashFromFile("fileHashes", fileName);
+}
+
+QString apPicsInfoCache::picHashFromFile(const QString& fileName) const
+{
+	return this->hashFromFile("picHashes", fileName);
+}
+
 QStringList apPicsInfoCache::filesFromFileHash(const QString& hash) const
 {
+	return this->filesFromHash("fileHashes", hash);
+}
+
+QStringList apPicsInfoCache::filesFromPicHash(const QString& hash) const
+{
+	return this->filesFromHash("picHashes", hash);
+}
+
+QString apPicsInfoCache::hashFromFile(const QString& tableName, const QString& fileName) const
+{
 	QSqlQuery query;
-	query.exec("SELECT fileName FROM fileHashes WHERE hash='" + hash + "'");
+
+	if ( ! query.exec(QLatin1String("SELECT fileName FROM ") % tableName % " WHERE fileName='" % fileName % "'"))
+	{
+		return QString();
+	}
+
+	if ( ! query.next())
+	{
+		return QString();
+	}
+
+	QString md5 = query.value(0).toString();
+
+	return md5;
+}
+
+QStringList apPicsInfoCache::filesFromHash(const QString& tableName, const QString& hash) const
+{
+	QSqlQuery query;
+	if ( ! query.exec("SELECT fileName FROM " % tableName % "WHERE hash='" + hash + "'"))
+	{
+		return QStringList();
+	}
 
 	QStringList fileNames;
 

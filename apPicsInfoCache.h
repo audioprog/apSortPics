@@ -31,7 +31,20 @@ class apPicsInfoCache
 public:
 	apPicsInfoCache();
 
+	void addFile( const QString& file, const QString& fileMd5, const QString& pixMd5 );
+
+	QString fileHashFromFile( const QString& ) const;
+
+	QString picHashFromFile( const QString& ) const;
+
 	QStringList filesFromFileHash( const QString& ) const;
+
+	QStringList filesFromPicHash( const QString& ) const;
+
+private:
+	QString hashFromFile( const QString& tableName, const QString& fileName ) const;
+
+	QStringList filesFromHash( const QString& tableName, const QString& hash ) const;
 };
 
 #endif // APPICSINFOCACHE_H

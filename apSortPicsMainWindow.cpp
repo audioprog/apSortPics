@@ -24,6 +24,9 @@ SOFTWARE.
 #include "apSortPicsMainWindow.h"
 #include "ui_apSortPicsMainWindow.h"
 
+#include <QDir>
+#include <QFileDialog>
+
 apSortPicsMainWindow::apSortPicsMainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::apSortPicsMainWindow)
@@ -34,4 +37,16 @@ apSortPicsMainWindow::apSortPicsMainWindow(QWidget *parent) :
 apSortPicsMainWindow::~apSortPicsMainWindow()
 {
 	delete ui;
+}
+
+void apSortPicsMainWindow::on_actiontest_triggered()
+{
+	QString dir = QFileDialog::getExistingDirectory(this, "Test");
+
+	QFileInfoList files = QDir(dir).entryInfoList(QStringList("*.jpg"), QDir::Files);
+
+	for (const QFileInfo& file : files)
+	{
+		this->infoManager.addFile(file);
+	}
 }

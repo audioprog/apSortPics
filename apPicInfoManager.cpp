@@ -21,32 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef APSORTPICSMAINWINDOW_H
-#define APSORTPICSMAINWINDOW_H
-
-#include <QMainWindow>
-
 #include "apPicInfoManager.h"
 
-namespace Ui {
-class apSortPicsMainWindow;
+#include "apPicHashManager.h"
+
+QSharedPointer<apPicInfo> apPicInfoManager::addFile(const QFileInfo& fileInfo)
+{
+	QSharedPointer<apPicInfo> picInfo(new apPicInfo(fileInfo.absoluteFilePath()));
+
+	apPicHashManager::addPicInfo(picInfo);
+
+	this->files[fileInfo.absoluteFilePath()] = picInfo;
+
+	return picInfo;
 }
 
-class apSortPicsMainWindow : public QMainWindow
+apPicInfo* apPicInfoManager::getPicInfo(const QString& fileName) const
 {
-	Q_OBJECT
-
-public:
-	explicit apSortPicsMainWindow(QWidget *parent = 0);
-	~apSortPicsMainWindow();
-
-private slots:
-	void on_actiontest_triggered();
-
-private:
-	Ui::apSortPicsMainWindow *ui;
-
-	apPicInfoManager infoManager;
-};
-
-#endif // APSORTPICSMAINWINDOW_H
+	return this->files.value(fileName).data();
+}

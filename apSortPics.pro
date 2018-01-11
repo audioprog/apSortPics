@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets sql
+QT       += core gui widgets sql concurrent
 
 TARGET = apSortPics
 TEMPLATE = app
@@ -24,11 +24,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         apSortPicsMainWindow.cpp \
-    apPicsInfoCache.cpp
+    apPicsInfoCache.cpp \
+    apPicInfo.cpp \
+    apPicHashCalculator.cpp \
+    apPicHashManager.cpp \
+    apPicInfoManager.cpp
 
 HEADERS += \
         apSortPicsMainWindow.h \
-    apPicsInfoCache.h
+    apPicsInfoCache.h \
+    apPicInfo.h \
+    apPicHashCalculator.h \
+    apPicHashManager.h \
+    apPicInfoManager.h
 
 FORMS += \
         apSortPicsMainWindow.ui

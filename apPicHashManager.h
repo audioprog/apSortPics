@@ -21,32 +21,52 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef APSORTPICSMAINWINDOW_H
-#define APSORTPICSMAINWINDOW_H
+#ifndef APPICHASHMANAGER_H
+#define APPICHASHMANAGER_H
 
-#include <QMainWindow>
+#include "apPicInfo.h"
 
-#include "apPicInfoManager.h"
+#include <QQueue>
+#include <QSharedPointer>
+#include <QTimer>
 
-namespace Ui {
-class apSortPicsMainWindow;
-}
+class apPicHashCalculator;
 
-class apSortPicsMainWindow : public QMainWindow
+class apPicHashManagerNotifier : public QObject
 {
 	Q_OBJECT
 
-public:
-	explicit apSortPicsMainWindow(QWidget *parent = 0);
-	~apSortPicsMainWindow();
-
-private slots:
-	void on_actiontest_triggered();
-
-private:
-	Ui::apSortPicsMainWindow *ui;
-
-	apPicInfoManager infoManager;
+signals:
+	void signalFinished( QString );
 };
 
-#endif // APSORTPICSMAINWINDOW_H
+class apPicHashManager
+{
+public:
+	apPicHashManager();
+
+	~apPicHashManager();
+
+	static void addPicInfo( QSharedPointer<apPicInfo> info );
+
+	apPicHashManagerNotifier* getNotifier();
+
+private:
+	void start();
+
+private:
+	static apPicHashManager* self;
+
+private:
+	QQueue<QSharedPointer<apPicInfo>> queue;
+
+	QList<apPicHashCalculator*> threads;
+
+	QTimer timer;
+
+	bool breakQueue = false;
+
+	apPicHashManagerNotifier notifier;
+};
+
+#endif // APPICHASHMANAGER_H

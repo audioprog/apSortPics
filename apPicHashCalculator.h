@@ -21,32 +21,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef APSORTPICSMAINWINDOW_H
-#define APSORTPICSMAINWINDOW_H
+#ifndef APPICHASHCALCULATOR_H
+#define APPICHASHCALCULATOR_H
 
-#include <QMainWindow>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QSharedPointer>
 
-#include "apPicInfoManager.h"
+class apPicInfo;
 
-namespace Ui {
-class apSortPicsMainWindow;
-}
+struct SapHash
+{
+	QString fileHash;
+	QString picHash;
+};
 
-class apSortPicsMainWindow : public QMainWindow
+class apPicHashCalculator : public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit apSortPicsMainWindow(QWidget *parent = 0);
-	~apSortPicsMainWindow();
+	apPicHashCalculator( QSharedPointer<apPicInfo> picInfo );
 
-private slots:
-	void on_actiontest_triggered();
+	const QString& getFileName() const;
+
+	static SapHash fileHashCreator( const QString& fileName );
 
 private:
-	Ui::apSortPicsMainWindow *ui;
 
-	apPicInfoManager infoManager;
+	void threadFinished();
+
+private:
+	QFuture<SapHash> picHasher;
+
+	QFutureWatcher<void> watcher;
+
+	QSharedPointer<apPicInfo> picInfo;
 };
 
-#endif // APSORTPICSMAINWINDOW_H
+#endif // APPICHASHCALCULATOR_H
